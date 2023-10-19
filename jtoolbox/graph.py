@@ -30,4 +30,13 @@ class TickRedrawer(matplotlib.artist.Artist):
                         artist.draw(renderer)
 
         renderer.close_group(self.__name__)
-        self.stale = False
+        
+def append_to_legend(ax, new_legend_entries):
+    """ """
+    # get current legend entries
+    handles, labels = ax.get_legend_handles_labels()
+    
+    for entry in new_legend_entries:
+        handles.append(entry)
+        labels.append(entry.get_label())
+    return handles, labels
