@@ -2,7 +2,7 @@
 name = "jToolbox"
 version = "0.1.0"
 authors = [
-  {name="Joshua Hammond, email="jhammond02@gmail.com}
+  {name="Joshua Hammond", email="jhammond02@gmail.com"},
 ]
 description="Shortcuts and utilities for things I often do"
 readme="README.md"
