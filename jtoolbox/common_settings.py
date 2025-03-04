@@ -1,6 +1,7 @@
 """Common declarations"""
-import numpy as np
+import logging
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -28,3 +29,5 @@ plt.rc('font', family='sans-serif', size=9)
 # plt.rc('ytick', labelsize='small')
 
 plt.rc("savefig", dpi=1_000, bbox="tight", pad_inches=0.01)
+
+# logging configuration
