@@ -95,7 +95,7 @@ class H5Logger:
     def log_value(self, data_key, data_value, file=None):
         if not isinstance(data_value, np.ndarray):
             data_value = np.array(data_value)
-            logger.debug(f"Converted data_value in {key} to numpy array")
+            logger.debug(f"Converted data_value in {data_key} to numpy array")
         if file is not None:
             if data_key not in file.keys():
                 self._init_dataset(file, data_key, data_value)
