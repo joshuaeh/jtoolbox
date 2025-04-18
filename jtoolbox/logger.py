@@ -41,28 +41,20 @@ class H5Logger:
 
     def _init_dataset(self, file, dataset_name, data):
         try:
-            file.create_dataset(
-                dataset_name, data=data[None], maxshape=self._maxshape(data)
-            )
+            file.create_dataset(dataset_name, data=data[None], maxshape=self._maxshape(data))
         except BlockingIOError:
             logging.error("BlockingIOError: Retrying")
             time.sleep(1)
-            file.create_dataset(
-                dataset_name, data=data[None], maxshape=self._maxshape(data)
-            )
+            file.create_dataset(dataset_name, data=data[None], maxshape=self._maxshape(data))
 
     def _append_to_dataset(self, file, dataset_name, data):
         try:
-            file[dataset_name].resize(
-                (file[dataset_name].shape[0] + 1, *file[dataset_name].shape[1:])
-            )
+            file[dataset_name].resize((file[dataset_name].shape[0] + 1, *file[dataset_name].shape[1:]))
             file[dataset_name][-1] = data
         except BlockingIOError:
             logging.error("BlockingIOError: Retrying")
             time.sleep(1)
-            file[dataset_name].resize(
-                (file[dataset_name].shape[0] + 1, *file[dataset_name].shape[1:])
-            )
+            file[dataset_name].resize((file[dataset_name].shape[0] + 1, *file[dataset_name].shape[1:]))
             file[dataset_name][-1] = data
 
     def _del_dataset(self, file, dataset_name):
@@ -81,9 +73,7 @@ class H5Logger:
         """Does not add an extra dimension, designed to be set once."""
         if self.check_key(key):
             if not replace:
-                AttributeError(
-                    f"Key {key} already exists. Use replace=True to overwrite."
-                )
+                AttributeError(f"Key {key} already exists. Use replace=True to overwrite.")
             else:
                 with h5py.File(self.filename, "a") as file:
                     del file[key]
@@ -118,7 +108,10 @@ class H5Logger:
 
     def get_dataset(self, dataset_name):
         with h5py.File(self.filename, "r") as file:
-            return file[dataset_name][:]
+            if not file[dataset_name].shape:
+                return file[dataset_name][()]
+            else:
+                return file[dataset_name][:]
 
     def get_keys(self, *args):
         largs = len(args)
@@ -133,9 +126,7 @@ class H5Logger:
     def get_group_keys(self, group):
         """depricated now"""
         # deprication warning
-        logger.warning(
-            "h5_logger.get_group_keys() is depricated. Use h5_logger.get_keys() instead."
-        )
+        logger.warning("h5_logger.get_group_keys() is depricated. Use h5_logger.get_keys() instead.")
         with h5py.File(self.filename, "r") as file:
             return list(file[group].keys())
 
