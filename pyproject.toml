@@ -1,6 +1,6 @@
 [project]
 name = "jtoolbox"
-version = "0.1.2"
+version = "0.0.1-alpha"
 authors = [
   {name="Joshua Hammond", email="jhammond02@gmail.com"},
 ]
