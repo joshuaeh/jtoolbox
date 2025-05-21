@@ -17,11 +17,12 @@ class H5Logger:
 
     # TODO: group logger?
     # TODO: removing key
+    # TODO: handle blocking IO errors more gracefully
     def __init__(self, filename, overwrite=False, **kwargs):
         """Initialize the logger.
         Args:
             filename (path-like): The path to the file to log to.
-            overwrite (bool): If True, overwrite the existing file. If False, append  to the existing file.
+            overwrite (bool): If True, overwrite an existing file. If False, append to an existing file (if one exists) (default: False).
         """
         self.filename = filename
         # check if file exists, create if desired
@@ -71,6 +72,7 @@ class H5Logger:
 
     def log_attribute(self, key, value, replace=False):
         """Does not add an extra dimension, designed to be set once."""
+        # TODO: change this to be the `.attrs` property of a group or dataset
         if self.check_key(key):
             if not replace:
                 AttributeError(f"Key {key} already exists. Use replace=True to overwrite.")
@@ -84,8 +86,11 @@ class H5Logger:
 
     def log_value(self, data_key, data_value, file=None):
         if not isinstance(data_value, np.ndarray):
-            data_value = np.array(data_value)
+            data_value = np.array([data_value])
             logger.debug(f"Converted data_value in {data_key} to numpy array")
+        elif data_value.ndim == 0:
+            data_value = np.array([data_value])
+            logger.debug(f"Converted 0-dim ndarray in {data_key} to 1-d numpy array")
         if file is not None:
             if data_key not in file.keys():
                 self._init_dataset(file, data_key, data_value)
@@ -103,15 +108,19 @@ class H5Logger:
             for key, value in data_dict.items():
                 self.log_value(key, value, file=file)
 
-    def open_log(self):
-        return h5py.File(self.filename, "a")
+    def open_log(self, open_type="a"):
+        return h5py.File(self.filename, open_type)
 
     def get_dataset(self, dataset_name):
-        with h5py.File(self.filename, "r") as file:
-            if not file[dataset_name].shape:
-                return file[dataset_name][()]
-            else:
-                return file[dataset_name][:]
+        try:
+            with h5py.File(self.filename, "r") as file:
+                if not file[dataset_name].shape:
+                    return file[dataset_name][()]
+                else:
+                    return file[dataset_name][:]
+        except KeyError:
+            logging.error(f"KeyError: Dataset {dataset_name} not found.")
+            return None
 
     def get_keys(self, *args):
         largs = len(args)
@@ -129,6 +138,10 @@ class H5Logger:
         logger.warning("h5_logger.get_group_keys() is depricated. Use h5_logger.get_keys() instead.")
         with h5py.File(self.filename, "r") as file:
             return list(file[group].keys())
+
+    def get_attributes(self, group):
+        """get all attributes of a group as a dictionary"""
+        NotImplementedError("get_attributes() is not implemented yet.")
 
     def get_multiple(self, given_keys):
         with h5py.File(self.filename, "r") as file:
